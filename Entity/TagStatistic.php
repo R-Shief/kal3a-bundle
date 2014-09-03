@@ -45,37 +45,9 @@ class TagStatistic
     /**
      * @var integer
      *
-     * @ORM\Column(name="sum", type="integer")
-     */
-    private $sum;
-
-    /**
-     * @var integer
-     *
      * @ORM\Column(name="count", type="integer")
      */
     private $count;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="min", type="integer")
-     */
-    private $min;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="max", type="integer")
-     */
-    private $max;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="sumsqr", type="integer")
-     */
-    private $sumsqr;
 
     /**
      * Get id
@@ -157,29 +129,6 @@ class TagStatistic
     }
 
     /**
-     * Set sum
-     *
-     * @param  integer      $sum
-     * @return TagStatistic
-     */
-    public function setSum($sum)
-    {
-        $this->sum = $sum;
-
-        return $this;
-    }
-
-    /**
-     * Get sum
-     *
-     * @return integer
-     */
-    public function getSum()
-    {
-        return $this->sum;
-    }
-
-    /**
      * Set count
      *
      * @param  integer      $count
@@ -200,74 +149,5 @@ class TagStatistic
     public function getCount()
     {
         return $this->count;
-    }
-
-    /**
-     * Set min
-     *
-     * @param  integer      $min
-     * @return TagStatistic
-     */
-    public function setMin($min)
-    {
-        $this->min = $min;
-
-        return $this;
-    }
-
-    /**
-     * Get min
-     *
-     * @return integer
-     */
-    public function getMin()
-    {
-        return $this->min;
-    }
-
-    /**
-     * Set max
-     *
-     * @param  integer      $max
-     * @return TagStatistic
-     */
-    public function setMax($max)
-    {
-        $this->max = $max;
-
-        return $this;
-    }
-
-    /**
-     * Get max
-     *
-     * @return integer
-     */
-    public function getMax()
-    {
-        return $this->max;
-    }
-
-    /**
-     * Set sumsqr
-     *
-     * @param  integer      $sumsqr
-     * @return TagStatistic
-     */
-    public function setSumsqr($sumsqr)
-    {
-        $this->sumsqr = $sumsqr;
-
-        return $this;
-    }
-
-    /**
-     * Get sumsqr
-     *
-     * @return integer
-     */
-    public function getSumsqr()
-    {
-        return $this->sumsqr;
     }
 }

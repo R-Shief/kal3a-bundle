@@ -24,8 +24,8 @@ class CopyTrendsCommand extends ContainerAwareCommand
         $this->setName('rshief:trends:copy')
             ->addArgument('design_document', InputArgument::REQUIRED, 'Design document')
             ->addArgument('view_name', InputArgument::REQUIRED, 'View name')
-            ->addArgument('date', InputArgument::OPTIONAL, 'Date', Carbon::now(new \DateTimeZone('UTC'))->modify('-1 day'))
-            ->addArgument('interval', InputArgument::OPTIONAL, 'Interval', 'P1D')
+            ->addArgument('start', InputArgument::REQUIRED, 'Start date')
+            ->addArgument('end', InputArgument::OPTIONAL, 'End date')
             ->addArgument('group_level', InputArgument::OPTIONAL, 'Group level', 5)
         ;
     }
@@ -35,22 +35,25 @@ class CopyTrendsCommand extends ContainerAwareCommand
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $stats_client = $this->getContainer()->get('doctrine_couchdb.client.trends_connection');
+        $stats_client = $this->getContainer()->get('doctrine_couchdb.client.default_connection');
 
         // DB view arguments
         $design_document = $input->getArgument('design_document');
-        $view_name = $input->getArgument('view_name');
+        $period = $view_name = $input->getArgument('view_name');
 
         // MySQL db entity
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
         $repository = $em->getRepository('Rshief\Bundle\Kal3aBundle\Entity\TagStatistic');
 
-        /** @var \DateTime $date */
-        $date = $input->getArgument('date');
-        $interval = $input->getArgument('interval');
-
-        $period = 'P1i';
-
+        /** @var \DateTime $start */
+        $start = \DateTime::createFromFormat('Y-m-d', $input->getArgument('start'));
+        if ($input->getArgument('end')) {
+            $end = \DateTime::createFromFormat('Y-m-d', $input->getArgument('end'));
+        }
+        else {
+            $end = clone $start;
+            $end->add(new \DateInterval('P1D'));
+        }
         $limit = 1000;
 
         // Executing the query without grouping allows the view to be refreshed.
@@ -62,12 +65,9 @@ class CopyTrendsCommand extends ContainerAwareCommand
         $query->setGroup(true);
         $query->setStale('ok');
 
-        $end = clone $date;
-        $end->add(new \DateInterval($interval));
+        $output->writeln(sprintf('%s -> %s', $start->format('Y-m-d'), $end->format('Y-m-d')));
 
-        $output->writeln(sprintf('%s -> %s', $date->format('Y-m-d'), $end->format('Y-m-d')));
-
-        $query->setStartKey([(int) $date->format('Y'), (int) $date->format('m'), (int) $date->format('d') ]);
+        $query->setStartKey([(int) $start->format('Y'), (int) $start->format('m'), (int) $start->format('d') ]);
         $query->setEndKey([(int) $end->format('Y'), (int) $end->format('m'), (int) $end->format('d'), array() ]);
         $query->setLimit($limit + 1);
 
@@ -103,10 +103,6 @@ class CopyTrendsCommand extends ContainerAwareCommand
                         $stats = new TagStatistic();
                     }
                     $stats->setCount($row['value']['count'])
-                        ->setMax($row['value']['max'])
-                        ->setMin($row['value']['min'])
-                        ->setSum($row['value']['sum'])
-                        ->setSumsqr($row['value']['sumsqr'])
                         ->setPeriod($period)
                         ->setTag($row['key'][5])
                         ->setTimestamp($timestamp);
