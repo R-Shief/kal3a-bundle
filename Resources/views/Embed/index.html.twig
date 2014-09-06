@@ -1,5 +1,9 @@
 {% extends '::base.html.twig' %}
 
+{% block head %}
+    <base target="_parent" />
+{% endblock %}
+
 {% block stylesheets %}
     {% stylesheets filter='cssrewrite'
     "bundles/rshiefkal3a/css/widget.scss" %}
