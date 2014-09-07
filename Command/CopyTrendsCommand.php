@@ -8,7 +8,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Constraints\DateTime;
-use Carbon\Carbon;
 
 /**
  * Class CopyTrendsCommand
@@ -49,8 +48,7 @@ class CopyTrendsCommand extends ContainerAwareCommand
         $start = \DateTime::createFromFormat('Y-m-d', $input->getArgument('start'));
         if ($input->getArgument('end')) {
             $end = \DateTime::createFromFormat('Y-m-d', $input->getArgument('end'));
-        }
-        else {
+        } else {
             $end = clone $start;
             $end->add(new \DateInterval('P1D'));
         }
