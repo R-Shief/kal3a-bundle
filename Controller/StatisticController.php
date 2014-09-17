@@ -54,4 +54,51 @@ class StatisticController extends FOSRestController
 
         return $result;
     }
+
+    public function getStatisticsAction($tag)
+    {
+        $group = 4;
+        $dm = $this->get('doctrine_couchdb');
+
+        /** @var \Doctrine\CouchDB\CouchDBClient $default_client */
+        $default_client = $dm->getConnection();
+
+        $query = $default_client->createViewQuery('stats', 'tag');
+        $query->setStale('ok');
+
+        // All other executions will allow stale results.
+        $query->setGroup(true);
+        $query->setGroupLevel($group);
+        $query->setIncludeDocs(false);
+        $query->setReduce(true);
+
+        $query->setStartKey(array($tag));
+        $query->setEndKey(array($tag, array()));
+
+        $result = $query->execute();
+
+
+        return array_map(function ($value) {
+                $date = new \DateTime();
+                $date->setDate($value['key'][1], $value['key'][2], $value['key'][3]);
+                $date = $date->format('Y-m-d');
+
+                return array(
+                    $date => $value['value']['sum'],
+                );
+            }, $result->toArray());
+
+    }
+
+    public function getSummaryAction()
+    {
+        $output = array();
+        $tr = $this->getDoctrine()->getRepository('BangpoundTwitterStreamingBundle:Track');
+
+        $tracks = $tr->findActiveTracks();
+        foreach ($tracks as $track) {
+            $output[$track] = $this->getStatisticsAction($track);
+        }
+        return $output;
+    }
 }
