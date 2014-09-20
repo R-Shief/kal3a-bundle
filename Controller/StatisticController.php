@@ -55,6 +55,10 @@ class StatisticController extends FOSRestController
         return $result;
     }
 
+    /**
+     * @param $tag
+     * @return \FOS\RestBundle\View\View
+     */
     public function getStatisticsAction($tag)
     {
         $group = 4;
@@ -77,7 +81,6 @@ class StatisticController extends FOSRestController
 
         $result = $query->execute();
 
-
         return array_map(function ($value) {
                 $date = new \DateTime();
                 $date->setDate($value['key'][1], $value['key'][2], $value['key'][3]);
@@ -90,6 +93,9 @@ class StatisticController extends FOSRestController
 
     }
 
+    /**
+     * @return \FOS\RestBundle\View\View
+     */
     public function getSummaryAction()
     {
         $output = array();
@@ -99,6 +105,7 @@ class StatisticController extends FOSRestController
         foreach ($tracks as $track) {
             $output[$track] = $this->getStatisticsAction($track);
         }
+
         return $output;
     }
 }
