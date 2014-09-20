@@ -62,6 +62,7 @@ class StatisticController extends FOSRestController
     public function getStatisticsAction($tag)
     {
         $group = 4;
+        $tag = strtolower(ltrim($tag, '#'));
         $dm = $this->get('doctrine_couchdb');
 
         /** @var \Doctrine\CouchDB\CouchDBClient $default_client */
