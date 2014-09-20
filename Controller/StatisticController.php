@@ -8,6 +8,7 @@ use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\Annotations\RouteResource;
 use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 
 /**
  * Class StatisticsController
@@ -96,6 +97,7 @@ class StatisticController extends FOSRestController
 
     /**
      * @return \FOS\RestBundle\View\View
+     * @Cache(expires="+1 hour", public=true)
      */
     public function getSummaryAction()
     {
