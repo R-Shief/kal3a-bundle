@@ -20,11 +20,13 @@ class CloneViewCommand extends ContainerAwareCommand
      */
     public function configure()
     {
+        $date = new \DateTime();
+
         $this->setName('rshief:trends:clone-view')
-            ->addArgument('design_document', InputArgument::REQUIRED, 'Design document')
-            ->addArgument('view_name', InputArgument::REQUIRED, 'View name')
-            ->addArgument('start', InputArgument::REQUIRED, 'Start date')
+            ->addArgument('start', InputArgument::OPTIONAL, 'Start date', $date->format('Y-m-d'))
             ->addArgument('end', InputArgument::OPTIONAL, 'End date')
+            ->addArgument('design_document', InputArgument::OPTIONAL, 'Design document', 'tag_trends')
+            ->addArgument('view_name', InputArgument::OPTIONAL, 'View name', 'PT1M')
         ;
     }
 
@@ -46,7 +48,6 @@ class CloneViewCommand extends ContainerAwareCommand
             $end = \DateTime::createFromFormat('Y-m-d', $input->getArgument('end'));
         } else {
             $end = clone $start;
-            $end->add(new \DateInterval('P1D'));
         }
 
         $limit = 1000;
@@ -118,7 +119,6 @@ class CloneViewCommand extends ContainerAwareCommand
                     call_user_func_array(array($date, 'setTime'), array_slice($row['key'], 3, 2));
 
                     $document['date'] = $date->format('Y-m-d H:i:s.u');
-                    $document['interval'] = $view_name;
 
                     $document['value'] = $row['value']['count'];
                     $bulk->updateDocument($document);
