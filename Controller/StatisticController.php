@@ -59,6 +59,7 @@ class StatisticController extends FOSRestController
     /**
      * @param $tag
      * @return \FOS\RestBundle\View\View
+     * @Cache(expires="+1 hour", public=true)
      */
     public function getStatisticsAction($tag, $group = 4)
     {
@@ -101,7 +102,7 @@ class StatisticController extends FOSRestController
 
     /**
      * @return \FOS\RestBundle\View\View
-     *                                   @Cache(expires="+1 hour", public=true)
+     * @Cache(expires="+1 hour", public=true)
      */
     public function getSummaryAction()
     {
@@ -110,8 +111,11 @@ class StatisticController extends FOSRestController
 
         $tracks = $tr->findActiveTracks();
         foreach ($tracks as $track) {
-            $output[$track] = $this->getStatisticsAction($track);
-            $output['_total'][$track] = $this->getStatisticsAction($track, 1);
+            $response = $this->forward('RshiefKal3aBundle:Statistic:getStatistics', array('tag' => $track));
+            $output[$track] = json_decode($response->getContent(), TRUE);
+
+            $response = $this->forward('RshiefKal3aBundle:Statistic:getStatistics', array('tag' => $track, 'group' => 1));
+            $output['_total'][$track] = json_decode($response->getContent(), TRUE);
         }
 
         return $output;
