@@ -60,9 +60,8 @@ class StatisticController extends FOSRestController
      * @param $tag
      * @return \FOS\RestBundle\View\View
      */
-    public function getStatisticsAction($tag)
+    public function getStatisticsAction($tag, $group = 4)
     {
-        $group = 4;
         $tag = strtolower(ltrim($tag, '#'));
         $dm = $this->get('doctrine_couchdb');
 
@@ -83,7 +82,8 @@ class StatisticController extends FOSRestController
 
         $result = $query->execute();
 
-        return array_map(function ($value) {
+        if ($group == 4) {
+            return array_map(function ($value) {
                 $date = new \DateTime();
                 $date->setDate($value['key'][1], $value['key'][2], $value['key'][3]);
                 $date = $date->format('Y-m-d');
@@ -92,12 +92,16 @@ class StatisticController extends FOSRestController
                     $date => $value['value']['sum'],
                 );
             }, $result->toArray());
-
+        } else {
+            foreach ($result as $value) {
+                return $value['value']['sum'];
+            }
+        }
     }
 
     /**
      * @return \FOS\RestBundle\View\View
-     * @Cache(expires="+1 hour", public=true)
+     *                                   @Cache(expires="+1 hour", public=true)
      */
     public function getSummaryAction()
     {
@@ -107,6 +111,7 @@ class StatisticController extends FOSRestController
         $tracks = $tr->findActiveTracks();
         foreach ($tracks as $track) {
             $output[$track] = $this->getStatisticsAction($track);
+            $output['_total'][$track] = $this->getStatisticsAction($track, 1);
         }
 
         return $output;
