@@ -63,25 +63,32 @@ class StatisticController extends FOSRestController
      */
     public function getStatisticsAction($tag, $group = 4)
     {
-        $tag = strtolower(ltrim($tag, '#'));
-        $dm = $this->get('doctrine_couchdb');
+        $cache = $this->get('doctrine_cache.providers.statistics');
+        if (!$cache->contains($tag)) {
+            $tag = strtolower(ltrim($tag, '#'));
+            $dm = $this->get('doctrine_couchdb');
 
-        /** @var \Doctrine\CouchDB\CouchDBClient $default_client */
-        $default_client = $dm->getConnection();
+            /** @var \Doctrine\CouchDB\CouchDBClient $default_client */
+            $default_client = $dm->getConnection();
 
-        $query = $default_client->createViewQuery('stats', 'tag');
-        $query->setStale('ok');
+            $query = $default_client->createViewQuery('stats', 'tag');
+            $query->setStale('ok');
 
-        // All other executions will allow stale results.
-        $query->setGroup(true);
-        $query->setGroupLevel($group);
-        $query->setIncludeDocs(false);
-        $query->setReduce(true);
+            // All other executions will allow stale results.
+            $query->setGroup(true);
+            $query->setGroupLevel($group);
+            $query->setIncludeDocs(false);
+            $query->setReduce(true);
 
-        $query->setStartKey(array($tag));
-        $query->setEndKey(array($tag, array()));
+            $query->setStartKey(array($tag));
+            $query->setEndKey(array($tag, array()));
 
-        $result = $query->execute();
+            $result = $query->execute();
+            $cache->save($tag, $result, 3600);
+        }
+        else {
+            $result = $cache->fetch($tag);
+        }
 
         if ($group == 4) {
             return array_map(function ($value) {
