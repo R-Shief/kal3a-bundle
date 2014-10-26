@@ -97,12 +97,12 @@ class StatisticController extends FOSRestController
                 $date = $date->format('Y-m-d');
 
                 return array(
-                    $date => $value['value']['sum'],
+                    $date => $value['value'],
                 );
             }, $result->toArray());
         } else {
             foreach ($result as $value) {
-                return $value['value']['sum'];
+                return $value['value'];
             }
         }
     }
