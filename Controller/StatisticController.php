@@ -64,7 +64,8 @@ class StatisticController extends FOSRestController
     public function getStatisticsAction($tag, $group = 4)
     {
         $cache = $this->get('doctrine_cache.providers.statistics');
-        if (!$cache->contains($tag)) {
+        $cache->setNamespace($tag);
+        if (!$cache->contains($group)) {
             $tag = strtolower(ltrim($tag, '#'));
             $dm = $this->get('doctrine_couchdb');
 
@@ -84,10 +85,10 @@ class StatisticController extends FOSRestController
             $query->setEndKey(array($tag, array()));
 
             $result = $query->execute();
-            $cache->save($tag, $result, 3600);
+            $cache->save($group, $result, 3600);
         }
         else {
-            $result = $cache->fetch($tag);
+            $result = $cache->fetch($group);
         }
 
         if ($group == 4) {
