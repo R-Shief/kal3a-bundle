@@ -71,7 +71,7 @@ class StatisticController extends FOSRestController
             /** @var \Doctrine\CouchDB\CouchDBClient $default_client */
             $default_client = $dm->getConnection();
 
-            $query = $default_client->createViewQuery('stats', 'tag');
+            $query = $default_client->createViewQuery('tag', 'timeseries');
             $query->setStale('ok');
 
             // All other executions will allow stale results.
