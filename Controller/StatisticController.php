@@ -119,11 +119,8 @@ class StatisticController extends FOSRestController
 
         $tracks = $tr->findActiveTracks();
         foreach ($tracks as $track) {
-            $response = $this->forward('RshiefKal3aBundle:Statistic:getStatistics', array('tag' => $track));
-            $output[$track] = json_decode($response->getContent(), TRUE);
-
-            $response = $this->forward('RshiefKal3aBundle:Statistic:getStatistics', array('tag' => $track, 'group' => 1));
-            $output['_total'][$track] = json_decode($response->getContent(), TRUE);
+            $output[$track] = $this->getStatisticsAction($track);
+            $output['_total'][$track] = $this->getStatisticsAction($track, 1);
         }
 
         return $output;
